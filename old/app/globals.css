@@ -1,0 +1,279 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('/favicon.ico');
+
+:root {
+  --color-one: #EC5798;
+  --color-two: #58ED90;
+  --color-three: #8FED58;
+  --color-four: #130014;
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 19, 0, 20;
+  --background-end-rgb: 0, 0, 0;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+    to bottom,
+    rgba(var(--background-start-rgb), 1),
+    rgba(var(--background-end-rgb), 1)
+  );
+  background-size: 100% 200%; /* Ensure gradient covers entire body */
+  transition: background-position 0.5s; /* Add transition for smooth gradient change */
+}
+
+.dark-mode body {
+  background-position: 0% 100%; /* Start gradient from the bottom */
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+.centered-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 75vh;
+  flex-direction: column;
+}
+
+@keyframes neonFlickerOne {
+  from {
+    filter: drop-shadow(0 0 1.5px var(--color-one)) drop-shadow(0 0 2.5px var(--color-one));
+  }
+  10%, 30%, 50%, 70%, 90% {
+    filter: drop-shadow(0 0 1.5px var(--color-one)) drop-shadow(0 0 0.75px var(--color-one));
+  }
+  20%, 40%, 60%, 80% {
+    filter: drop-shadow(0 0 1px var(--color-one)) drop-shadow(0 0 1.5px var(--color-one));
+  }
+  to {
+    filter: drop-shadow(0 0 1.5px var(--color-one)) drop-shadow(0 0 2.5px var(--color-one));
+  }
+}
+
+@keyframes neonFlickerTwo {
+  from {
+    filter: drop-shadow(0 0 1.5px var(--color-two)) drop-shadow(0 0 2.5px var(--color-two));
+  }
+  10%, 30%, 50%, 70%, 90% {
+    filter: drop-shadow(0 0 1.5px var(--color-two)) drop-shadow(0 0 0.75px var(--color-two));
+  }
+  20%, 40%, 60%, 80% {
+    filter: drop-shadow(0 0 1px var(--color-two)) drop-shadow(0 0 1.5px var(--color-two));
+  }
+  to {
+    filter: drop-shadow(0 0 1.5px var(--color-two)) drop-shadow(0 0 2.5px var(--color-two));
+  }
+}
+
+@keyframes neonFlickerThree {
+  from {
+    filter: drop-shadow(0 0 1.5px var(--color-three)) drop-shadow(0 0 2.5px var(--color-three));
+  }
+  10%, 30%, 50%, 70%, 90% {
+    filter: drop-shadow(0 0 1.5px var(--color-three)) drop-shadow(0 0 0.75px var(--color-three));
+  }
+  20%, 40%, 60%, 80% {
+    filter: drop-shadow(0 0 1px var(--color-three)) drop-shadow(0 0 1.5px var(--color-three));
+  }
+  to {
+    filter: drop-shadow(0 0 1.5px var(--color-three)) drop-shadow(0 0 2.5px var(--color-three));
+  }
+}
+
+input {
+  border: 2px solid var(--color-one);
+  background-color: var(--color-four);
+  color: white;
+  border-radius: 5px;
+  padding: 8px 12px;
+  margin: 15px 0 4px 0; /* Top margin of 30px */
+  box-sizing: border-box;
+  animation: neonFlickerOne 2s infinite alternate;
+}
+
+input:focus {
+  border-color: var(--color-two);
+  animation: neonFlickerTwo 1s infinite alternate;
+}
+
+.login-header {
+  color: var(--color-one);
+  font-size: 50px;
+}
+
+.logo-sidebar {
+  color: var(--color-one);
+  font-size: 30px;
+  justify-content: center;
+  display: flex;
+}
+
+/* Login Gears */
+
+.first-gear {
+  width: 100px;
+  height: 100px;
+  display: inline-block;
+  animation: neonFlickerOne 4s infinite ease-in-out;
+  position: relative;
+  margin-right: -10px; /* Adjust the spacing between gears */
+}
+
+.second-gear {
+  width: 75px;
+  height: 75px;
+  display: inline-block;
+  animation: neonFlickerTwo 3s infinite ease-in-out;
+  position: relative;
+  bottom: 40%; /* Adjust this percentage to move the second gear higher relative to the first */
+}
+
+.gear-wrapper {
+  display: flex;          /* Enables flexbox */
+  justify-content: center; /* Center horizontally */
+  align-items: center;    /* Align items vertically in the center, if needed */
+  width: 100%;            /* Take full width of its container */
+}
+
+/* Menu Gears */
+
+.small-first-gear {
+  width: 50px;
+  height: 50px;
+  display: inline-block;
+  animation: neonFlickerOne 4s infinite ease-in-out;
+  position: relative;
+  margin-right: -3px; /* Adjust the spacing between gears */
+}
+
+.small-second-gear {
+  width: 35px;
+  height: 35px;
+  display: inline-block;
+  animation: neonFlickerTwo 3s infinite ease-in-out;
+  position: relative;
+  bottom: 5px; /* Reset the bottom position */
+}
+
+.small-gear-wrapper {
+  display: flex;          /* Enables flexbox */
+  justify-content: center; /* Align items to the left */
+  align-items: flex-start;    /* Align items to the left */
+  width: 100%;            /* Take full width of its container */
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+
+.login-button {
+  background-color: var(--color-one); /* Button background color */
+  color: var(--color-four); /* Button text color */
+  border: none;
+  padding: 10px 20px; /* Adjust padding as needed */
+  border-radius: 5px; /* Adjust border radius as needed */
+  cursor: pointer;
+  transition: background-color 0.3s; /* Smooth transition effect */
+  margin: 15px auto 4px auto; /* Center the button and adjust margins */
+  display: block; /* Ensure button takes up 100% width */
+  width: 100%; /* Make the button take up 100% width */
+  text-transform: uppercase; /* Convert text to uppercase */
+  font-weight: bold; /* Set font to bold */
+  text-align: center; /* Center the text */
+  animation: neonFlickerOne 3s infinite alternate;
+}
+
+.login-button:hover {
+  background-color: var(--color-two); /* Button background color on hover */
+  animation: neonFlickerTwo 2s infinite alternate;
+}
+
+.login-button:active {
+  background-color: var(--color-three); /* Button background color when pressed */
+  animation: neonFlickerThree 1s infinite alternate;
+}
+
+.logout-button {
+  background-color: var(--color-one); /* Button background color */
+  color: var(--color-four); /* Button text color */
+  border: none;
+  padding: 10px 20px; /* Adjust padding as needed */
+  border-radius: 5px; /* Adjust border radius as needed */
+  cursor: pointer;
+  transition: background-color 0.3s; /* Smooth transition effect */
+  margin: 15px auto 4px auto; /* Center the button and adjust margins */
+  display: block; /* Ensure button takes up 100% width */
+  width: 75%; /* Make the button take up 100% width */
+  text-transform: uppercase; /* Convert text to uppercase */
+  font-weight: bold; /* Set font to bold */
+  text-align: center; /* Center the text */
+  animation: neonFlickerOne 3s infinite alternate;
+}
+
+.logout-button:hover {
+  background-color: var(--color-two); /* Button background color on hover */
+  animation: neonFlickerTwo 2s infinite alternate;
+}
+
+.logout-button:active {
+  background-color: var(--color-three); /* Button background color when pressed */
+  animation: neonFlickerThree 1s infinite alternate;
+}
+
+.sidebar {
+  background-color: var(--color-four);
+  border-right: 2px solid var(--color-one);
+  animation: neonFlickerOne 2s infinite alternate;
+}
+
+.sidebar-menu-item {
+  display: flex;
+  justify-content: center;
+  margin: 5px;
+}
+
+.menu-text {
+  color: white;
+  position: relative;
+}
+
+.menu-text::after {
+  content: ''; 
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0; /* Start with no width */
+  height: 1.5px;
+  background-color: var(--color-one);
+  transition: width 0.3s ease; /* Animate the width change */
+  animation: neonFlickerOne 2s infinite alternate;
+}
+
+.menu-text:hover::after {
+  width: 100%; /* Expand the width on hover */
+  background-color: var(--color-one); /* Change the background color to color-one on hover */
+  animation: neonFlickerOne 2s infinite alternate;
+}
+
+.page-header {
+  font-size: 50px; /* Adjust font size as needed */
+  color: var(--color-two); /* Set the text color */
+  margin: 30px;
+}
+
+.settings-font {
+  color: white;
+}
+
+.message {
+  color: var(--color-three);
+}
+
+.sub-header {
+  color: var(--color-two);
+}

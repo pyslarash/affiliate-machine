@@ -1,0 +1,57 @@
+/* Gears */
+
+@keyframes flickerOne {
+    from {
+      filter: drop-shadow(0 0 0.5px) drop-shadow(0 0 0.83px);
+    }
+    10%, 30%, 50%, 70%, 90% {
+      filter: drop-shadow(0 0 0.5px) drop-shadow(0 0 0.25px);
+    }
+    20%, 40%, 60%, 80% {
+      filter: drop-shadow(0 0 0.3px) drop-shadow(0 0 0.5px);
+    }
+    to {
+      filter: drop-shadow(0 0 0.5px) drop-shadow(0 0 0.83px);
+    }
+  }
+  
+@keyframes flickerTwo {
+    from {
+      filter: drop-shadow(0 0 0.5px) drop-shadow(0 0 0.83px);
+    }
+    10%, 30%, 50%, 70%, 90% {
+      filter: drop-shadow(0 0 0.5px) drop-shadow(0 0 0.25px);
+    }
+    20%, 40%, 60%, 80% {
+      filter: drop-shadow(0 0 0.3px) drop-shadow(0 0 0.5px);
+    }
+    to {
+      filter: drop-shadow(0 0 0.5px) drop-shadow(0 0 0.83px);
+    }
+  }
+  
+  .first-gear {
+    width: 50px;
+    height: 50px;
+    display: inline-block;
+    animation: flickerOne 4s infinite ease-in-out;
+    position: relative;
+    margin-right: -8px; /* Adjust the spacing between gears */
+  }
+  
+  .second-gear {
+    width: 35px;
+    height: 35px;
+    display: inline-block;
+    animation: flickerTwo 3s infinite ease-in-out;
+    position: relative;
+    bottom: 10px; /* Reset the bottom position */
+  }
+  
+  .gear-wrapper {
+    display: flex;          /* Enables flexbox */
+    justify-content: center; /* Align items to the left */
+    align-items: flex-start;    /* Align items to the left */
+    width: 100%;            /* Take full width of its container */
+    margin: 5px;
+  }

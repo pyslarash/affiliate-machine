@@ -1,0 +1,39 @@
+# Frontend dependencies
+/frontend/node_modules
+/frontend/.pnp
+/frontend/.pnp.js
+/frontend/.yarn/install-state.gz
+
+# Frontend testing
+/frontend/coverage
+
+# Next.js
+/frontend/.next/
+/frontend/out/
+
+# Frontend production
+/frontend/build
+
+# Miscellaneous
+/frontend/.DS_Store
+/frontend/*.pem
+
+# Debug
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+
+# Local environment files
+/frontend/.env*.local
+
+# Vercel
+/frontend/.vercel
+
+# TypeScript
+/frontend/*.tsbuildinfo
+/frontend/next-env.d.ts
+
+# Backend cache and environment
+/backend/__pycache__/
+/backend/venv/
+/backend/.env
