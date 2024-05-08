@@ -29,9 +29,9 @@ export default function Dashboard() {
   };
 
   return (
-    <div style={{ display: 'flex' }}>
+    <div className="flex h-screen">
       <div>
-        <h1 className={`${oswald.className} page-header`}>Dashboard</h1>
+        <h1>Dashboard</h1>
         {/* Add your dashboard content here */}
       </div>
     </div>

@@ -26,12 +26,10 @@ def create_user():
     email = data.get('email')
     password = data.get('password')
     username = data.get('username')
-    first_name = data.get('first_name')
-    last_name = data.get('last_name')
     requested_user_type = data.get('user_type', 'user')  # Default to 'user'
 
     # Validate input fields
-    if not all([email, password, username, first_name, last_name]):
+    if not all([email, password, username]):
         return jsonify({'message': 'Missing required fields'}), 400
 
     if not is_valid_email(email):
@@ -46,7 +44,7 @@ def create_user():
 
     hashed_password = ph.hash(password)
 
-    new_user = User(email=email, password=hashed_password, username=username, first_name=first_name, last_name=last_name, user_type=requested_user_type)
+    new_user = User(email=email, password=hashed_password, username=username, user_type=requested_user_type)
     db.session.add(new_user)
 
     try:
