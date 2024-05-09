@@ -25,6 +25,7 @@
 
 # Local environment files
 /frontend/.env*.local
+/frontend/.env
 
 # Vercel
 /frontend/.vercel

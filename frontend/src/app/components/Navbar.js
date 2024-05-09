@@ -49,7 +49,8 @@ export default function TopBar() {
     { name: "Domains", path: "/domains" },
     { name: "Websites", path: "/websites" },
     { name: "Keywords", path: "/keywords" },
-    { name: "Posts", path: "/posts" },
+    { name: "Processed Domains", path: "/processeddomains" },
+    { name: "WP Automation", path: "/wpautomation" },
     { name: "Settings", path: "/settings" }
   ];
 

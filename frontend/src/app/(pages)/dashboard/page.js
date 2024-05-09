@@ -2,13 +2,6 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Oswald } from 'next/font/google';
-
-const oswald = Oswald({
-  display: 'swap',
-  subsets: ['latin'],
-  weight: '600'
-});
 
 export default function Dashboard() {
   const router = useRouter();
@@ -29,9 +22,9 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex h-screen">
-      <div>
-        <h1>Dashboard</h1>
+    <div className="flex justify-left">
+      <div className="container mx-auto px-4">
+        <h1 className='my-4'>Dashboard</h1>
         {/* Add your dashboard content here */}
       </div>
     </div>
