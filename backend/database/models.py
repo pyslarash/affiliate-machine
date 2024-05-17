@@ -70,9 +70,9 @@ class UserEnv(db.Model):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship("User", back_populates="user_envs")
-    name = Column(String, nullable=False)
-    codename = Column(String, nullable=False)
-    value = Column(String, nullable=False)
+    name = Column(String)
+    codename = Column(String)
+    value = Column(String)
 
 class Keyword(db.Model):
     __tablename__ = 'keywords'
