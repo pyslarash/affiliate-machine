@@ -67,12 +67,25 @@ class ProcessedDomain(db.Model):
 
 class UserEnv(db.Model):
     __tablename__ = 'user_envs'
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
+
+    # Primary key and foreign key relationship
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    
+    # Relationship to User model
     user = relationship("User", back_populates="user_envs")
-    name = Column(String)
-    codename = Column(String)
-    value = Column(String)
+
+    # Existing columns
+    jan_ip = Column(String)
+    jan_port = Column(Integer)
+    jan_prefix = Column(String)
+
+    # New columns for various API keys
+    open_ai_api_key = Column(String)
+    google_search_api_key = Column(String)
+    google_cx = Column(String)
+    myaddr_api_key = Column(String)
+    porkbun_api_key = Column(String)
+    porkbun_secret = Column(String)
 
 class Keyword(db.Model):
     __tablename__ = 'keywords'

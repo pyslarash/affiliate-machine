@@ -12,14 +12,22 @@ require('dotenv').config();
 export default function Settings() {
   const router = useRouter();
   const [userData, setUserData] = useState(null);
-  const [message, setMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [accountMessage, setAccountMessage] = useState('');
+  const [accountErrorMessage, setAccountErrorMessage] = useState('');
+  const [janMessage, setJanMessage] = useState('');
+  const [janErrorMessage, setJanErrorMessage] = useState('');
+  const [janCred, setJanCred] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     first_name: '',
     last_name: '',
     password: ''
+  });
+  const [janData, setJanData] = useState({
+    jan_ip: '',
+    jan_port: '',
+    jan_prefix: ''
   });
 
   useEffect(() => {
@@ -30,6 +38,7 @@ export default function Settings() {
     if (!token || !expirationTime || Date.now() > parseInt(expirationTime)) {
       redirectToLogin();
     } else {
+      // Fetch user account information
       axios.get(`${process.env.NEXT_PUBLIC_BACKEND}/get_user/${userID}`, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -45,6 +54,8 @@ export default function Settings() {
             last_name: response.data.last_name,
             password: ''
           });
+          // Fetch JAN credentials after fetching user data
+          fetchJanCredentials(token);
         })
         .catch(error => {
           console.error('Error fetching user data:', error);
@@ -56,31 +67,110 @@ export default function Settings() {
     window.location.href = '/login';
   };
 
-  const handleSubmit = (e) => {
+  const fetchJanCredentials = (token) => {
+    axios.get(`${process.env.NEXT_PUBLIC_BACKEND}/get_credentials`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then(response => {
+        if (response.status === 200) {
+          const { jan_ip, jan_port, jan_prefix } = response.data;
+          // JAN credentials exist, set them for editing
+          setJanData({
+            jan_ip,
+            jan_port,
+            jan_prefix
+          });
+          setJanCred(true);
+        } else if (response.status === 404) {
+          setJanCred(false);
+        } else {
+          console.error('Error fetching Jan.ai credentials:', response);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching Jan.ai credentials:', error);
+        setJanCred(false);
+      });
+  };
+
+  const handleSubmitAccount = (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
     const userID = localStorage.getItem('user_id');
-  
+
     axios.put(`${process.env.NEXT_PUBLIC_BACKEND}/edit_user/${userID}`, formData, {
       headers: {
         Authorization: `Bearer ${token}`
       }
     })
       .then(response => {
-        setMessage(response.data.message);
+        setAccountMessage(response.data.message);
         // Clear the error message on success
-        setErrorMessage('');
+        setAccountErrorMessage('');
       })
       .catch(error => {
-        setErrorMessage(error.response && error.response.data.message
+        setAccountErrorMessage(error.response && error.response.data.message
           ? error.response.data.message
-          : 'Sign-up failed. Please check your input and try again.');
+          : 'Update failed. Please check your input and try again.');
       });
   };
 
+  const handleSubmitJan = (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    const { jan_ip, jan_port, jan_prefix } = janData;
+  
+    // Validation for JAN fields
+    if (!jan_ip || !jan_port || !jan_prefix) {
+      setJanErrorMessage('All Jan.ai fields are required.');
+      return;
+    }
+  
+    const updatedJanData = { jan_ip, jan_port, jan_prefix };
+  
+    // Check if JAN credentials exist
+    if (!janCred) {
+      // If no credentials exist, create new credentials
+      axios.post(`${process.env.NEXT_PUBLIC_BACKEND}/set_credentials`, updatedJanData, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then(response => {
+          setJanMessage(response.data.message);
+          setJanErrorMessage('');
+          // Update janCred state or variable here if needed
+        })
+        .catch(error => {
+          setJanErrorMessage(error.response && error.response.data.message
+            ? error.response.data.message
+            : 'Update failed. Please check your input and try again.');
+        });
+    } else {
+      // If credentials exist, update existing credentials
+      axios.put(`${process.env.NEXT_PUBLIC_BACKEND}/update_credentials`, updatedJanData, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then(response => {
+          setJanMessage(response.data.message);
+          setJanErrorMessage('');
+          // Update janCred state or variable here if needed
+        })
+        .catch(error => {
+          setJanErrorMessage(error.response && error.response.data.message
+            ? error.response.data.message
+            : 'Update failed. Please check your input and try again.');
+        });
+    }
+  };
+
   const handleChange = (name, value) => {
-    setFormData(prevFormData => ({
-      ...prevFormData,
+    setJanData(prevJanData => ({
+      ...prevJanData,
       [name]: value
     }));
   };
@@ -93,42 +183,97 @@ export default function Settings() {
   };
 
   return (
-    <div className="flex justify-left">
-      <div className="container mx-auto px-4">
-        {/* Main Header */}
-        {/* Main Header */}
-        <h1 className='my-4'>Settings</h1>
-        {/* Account Update Form */}
-        <form onSubmit={handleSubmit}>
-          <h2 className='mb-2'>Account</h2>
-          <div className="grid grid-cols-1 gap-y-2">
-            {userData && (
-              <div>
-                {Object.keys(formData).map((key, index) => (
-                  <div className="group relative mb-2" key={index}>
+    <div className="container mx-auto px-4">
+      <h1 className='my-4'>Settings</h1>
+      <div className="flex justify-between">
+        {/* Left Column: Account Information */}
+        <div className="w-full max-w px-4">
+          <form onSubmit={handleSubmitAccount}>
+            <h2 className='mb-2'>Account</h2>
+            <div className="grid grid-cols-1 gap-y-2">
+              {userData && (
+                <div>
+                  {Object.keys(formData).map((key, index) => (
+                    <div className="group relative mb-2" key={index}>
+                      <Input
+                        size="md"
+                        type={key === 'password' ? 'password' : (key === 'email' ? 'email' : 'text')}
+                        label={formatLabel(key)}
+                        placeholder={`Change ${formatLabel(key)}`}
+                        value={formData[key]}
+                        onChange={(e) => setFormData(prevFormData => ({
+                          ...prevFormData,
+                          [key]: e.target.value
+                        }))}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+              <Button className="button-text w-full" type="submit" color="primary" auto>
+                Update Account
+              </Button>
+              {(accountErrorMessage && (
+                <p className="text-center text-sm text-red-600 mt-1">{accountErrorMessage}</p>
+              )) ||
+              (accountMessage && (
+                <p className="text-center text-sm text-green-600 mt-1">{accountMessage}</p>
+              ))}
+            </div>
+          </form>
+        </div>
+
+        {/* Right Column: JAN Credentials */}
+        <div className="w-full max-w px-4">
+          <form onSubmit={handleSubmitJan}>
+            <h2 className='mb-2'>Jan.ai Credentials</h2>
+            <div className="grid grid-cols-1 gap-y-2">
+              {userData && (
+                <div>
+                  <div className="group relative mb-2">
                     <Input
                       size="md"
-                      type={key === 'password' ? 'password' : (key === 'email' ? 'email' : 'text')}
-                      label={formatLabel(key)}
-                      placeholder={`Change ${formatLabel(key)}`}
-                      value={formData[key]}
-                      onChange={(e) => handleChange(key, e.target.value)}
+                      type="text"
+                      label="Jan.ai IP"
+                      placeholder="Enter Jan.ai IP"
+                      value={janData.jan_ip}
+                      onChange={(e) => handleChange('jan_ip', e.target.value)}
                     />
                   </div>
-                ))}
-              </div>
-            )}
-            <Button className="button-text" type="submit" color="primary" auto>
-              Update
-            </Button>
-            {errorMessage && (
-              <p className="text-center text-sm text-red-600 mt-1">{errorMessage}</p>
-            )}
-            {message && (
-              <p className="text-center text-sm text-green-600 mt-1">{message}</p>
-            )}
-          </div>
-        </form>
+                  <div className="group relative mb-2">
+                    <Input
+                      size="md"
+                      type="text"
+                      label="Jan.ai Port"
+                      placeholder="Enter Jan.ai Port"
+                      value={janData.jan_port}
+                      onChange={(e) => handleChange('jan_port', e.target.value)}
+                    />
+                  </div>
+                  <div className="group relative mb-2">
+                    <Input
+                      size="md"
+                      type="text"
+                      label="Jan.ai Prefix"
+                      placeholder="Enter Jan.ai Prefix"
+                      value={janData.jan_prefix}
+                      onChange={(e) => handleChange('jan_prefix', e.target.value)}
+                    />
+                  </div>
+                  <Button className="button-text w-full" type="submit" color="primary" auto>
+                    Update Jan
+                  </Button>
+                  {(janErrorMessage && (
+                    <p className="text-center text-sm text-red-600 mt-1">{janErrorMessage}</p>
+                  )) ||
+                  (janMessage && (
+                    <p className="text-center text-sm text-green-600 mt-1">{janMessage}</p>
+                  ))}
+                </div>
+              )}
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
