@@ -63,3 +63,4 @@ def czds(app):
     app.route('/get_czds_zonefiles_heads/<zone>', methods=['GET'])(get_czds_zonefiles_heads)
     app.route('/download_czds_zonefile/<zone>', methods=['GET'])(download_czds_zonefile)
     app.route('/display_zonefile_contents/<zone>', methods=['GET'])(display_zonefile_contents)
+    app.route('/zonefile_with_expiration/<zone>', methods=['GET'])(zonefile_with_expiration)
