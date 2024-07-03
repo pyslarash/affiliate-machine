@@ -96,7 +96,7 @@ def get_credentials():
                 'jan_prefix': user_env.jan_prefix
             }), 200
         else:
-            return jsonify({'message': 'No JAN credentials found for this user'}), 404
+            return jsonify({'message': 'No Jan.ai credentials found for this user'}), 404
     
     except Exception as e:
         return jsonify({'message': str(e)}), 500

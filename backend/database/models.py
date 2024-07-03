@@ -86,6 +86,8 @@ class UserEnv(db.Model):
     myaddr_api_key = Column(String)
     porkbun_api_key = Column(String)
     porkbun_secret = Column(String)
+    czds_login = Column(String)
+    czds_password = Column(String)
 
 class Keyword(db.Model):
     __tablename__ = 'keywords'

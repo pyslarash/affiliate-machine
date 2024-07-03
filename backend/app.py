@@ -5,7 +5,7 @@ from flask_cors import CORS, cross_origin
 from database import db, migrate
 from database.create_db import create_db
 from config import Config
-from api import user_routes, env_values
+from api import *
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all route
@@ -31,5 +31,7 @@ def init_scheduler():
 if __name__ == '__main__':
     init_scheduler()
     user_routes(app)
-    env_values(app)
+    jan_ai(app)
+    api_keys(app)
+    czds(app)
     app.run()
