@@ -1,19 +1,9 @@
-from . import db
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, DECIMAL
 from sqlalchemy.orm import relationship
-from sqlalchemy import DECIMAL
+from . import db
 
-class TokenBlacklist(db.Model):
-    __tablename__ = 'token_blacklist'
-    id = Column(Integer, primary_key=True)
-    token = Column(String, nullable=False)  # Store the full JWT here
-    jti = Column(String, unique=True, nullable=False)  # Store the JWT ID here, ensure it's unique
-    user_id = Column(Integer, nullable=False)
-    created_at = Column(DateTime, default=datetime.now(timezone.utc))
-    expires_at = Column(DateTime, nullable=False)
-    is_active = Column(Boolean, default=False, nullable=False)  # Tracks if the token is active
-
+# Users
 class User(db.Model):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
@@ -23,20 +13,61 @@ class User(db.Model):
     first_name = Column(String)
     last_name = Column(String)
     user_type = Column(String, nullable=False)
+    domains = relationship("UserDomains", back_populates="user")
+    tokens = relationship("TokenBlacklist", back_populates="user")
+    envs = relationship("UserEnv", back_populates="user")
 
-class Domain(db.Model):
+class UserEnv(db.Model):
+    __tablename__ = 'user_envs'
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
+    user = relationship("User", back_populates="envs")
+    jan_ip = Column(String)
+    jan_port = Column(Integer)
+    jan_prefix = Column(String)
+    open_ai_api_key = Column(String)
+    google_search_api_key = Column(String)
+    google_cx = Column(String)
+    myaddr_api_key = Column(String)
+    porkbun_api_key = Column(String)
+    porkbun_secret = Column(String)
+    czds_login = Column(String)
+    czds_password = Column(String)
+
+class TokenBlacklist(db.Model):
+    __tablename__ = 'token_blacklist'
+    id = Column(Integer, primary_key=True)
+    token = Column(String, nullable=False)
+    jti = Column(String, unique=True, nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    user = relationship("User", back_populates="tokens")
+    created_at = Column(DateTime, default=datetime.now(timezone.utc))
+    expires_at = Column(DateTime, nullable=False)
+    is_active = Column(Boolean, default=False, nullable=False)
+
+# Domains
+class Domains(db.Model):
     __tablename__ = 'domains'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    user = relationship("User", back_populates="domains")
-    domain_name = Column(String, nullable=False, unique=True)
-    is_active = Column(Boolean, default=True)
+    domain = Column(String, unique=True, nullable=False)
+    zone = Column(String, nullable=False)
+    users = relationship("UserDomains", back_populates="domain", cascade='all, delete-orphan')
+    available_domains = relationship("AvailableDomains", back_populates="domain", cascade='all, delete-orphan')
+    unavailable_domains = relationship("UnavailableDomains", back_populates="domain", cascade='all, delete-orphan')
 
-class DomainStats(db.Model):
-    __tablename__ = 'domain_stats'
+class UserDomains(db.Model):
+    __tablename__ = 'user_domains'
     id = Column(Integer, primary_key=True)
-    domain_id = Column(Integer, ForeignKey('domains.id'))
-    domain = relationship("Domain", back_populates="domain_stats")
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
+    domain_id = Column(Integer, ForeignKey('domains.id', ondelete='CASCADE'), unique=True)
+    domain = relationship("Domains", back_populates="users", uselist=False)
+    user = relationship("User", back_populates="domains")
+    keywords = relationship("Keywords", back_populates="user_domain")
+    
+class AvailableDomains(db.Model):
+    __tablename__ = 'available_domains'
+    id = Column(Integer, primary_key=True)
+    domain_id = Column(Integer, ForeignKey('domains.id', ondelete='CASCADE'), unique=True)
+    domain = relationship("Domains", back_populates="available_domains", uselist=False)
     moz_da = Column(Integer)
     moz_pa = Column(Integer)
     ahrefs_dr = Column(Integer)
@@ -49,62 +80,41 @@ class DomainStats(db.Model):
     fb_comments = Column(Integer)
     fb_shares = Column(Integer)
     fb_reactions = Column(Integer)
+    last_updated = Column(DateTime, default=datetime.now(timezone.utc))
 
-class ProcessedDomain(db.Model):
-    __tablename__ = 'processed_domains'
+class UnavailableDomains(db.Model):
+    __tablename__ = 'unavailable_domains'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    user = relationship("User", back_populates="processed_domains")
-    domain_stats_id = Column(Integer, ForeignKey('domain_stats.id'))
-    domain_stats = relationship("DomainStats", back_populates="processed_domains")
-    website_name = Column(String)
-    price_per_year = Column(DECIMAL(10, 2))
-    date_bought = Column(DateTime)
-    admin_link = Column(String)
-    website_description = Column(String(255))
-    tags = Column(String)
-    group = Column(String)
+    domain_id = Column(Integer, ForeignKey('domains.id', ondelete='CASCADE'), unique=True)
+    domain = relationship("Domains", back_populates="unavailable_domains", uselist=False)
+    creation_date = Column(String, nullable=False)
+    creation_time = Column(String, nullable=False)
+    expiration_date = Column(String, nullable=False)
+    expiration_time = Column(String, nullable=False)
+    name_servers = Column(String)
+    updated_date = Column(String, nullable=False)
+    updated_time = Column(String, nullable=False)
+    last_updated = Column(DateTime, default=datetime.now(timezone.utc))
 
-class UserEnv(db.Model):
-    __tablename__ = 'user_envs'
-
-    # Primary key and foreign key relationship
-    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
-    
-    # Relationship to User model
-    user = relationship("User", back_populates="user_envs")
-
-    # Existing columns
-    jan_ip = Column(String)
-    jan_port = Column(Integer)
-    jan_prefix = Column(String)
-
-    # New columns for various API keys
-    open_ai_api_key = Column(String)
-    google_search_api_key = Column(String)
-    google_cx = Column(String)
-    myaddr_api_key = Column(String)
-    porkbun_api_key = Column(String)
-    porkbun_secret = Column(String)
-    czds_login = Column(String)
-    czds_password = Column(String)
-
-class Keyword(db.Model):
+# Keywords
+class Keywords(db.Model):
     __tablename__ = 'keywords'
     id = Column(Integer, primary_key=True)
-    processed_domain_id = Column(Integer, ForeignKey('processed_domains.id'))
-    processed_domain = relationship("ProcessedDomain", back_populates="keywords")
-    focus_keyword = Column(String, nullable=False)
+    domain_id = Column(Integer, ForeignKey('user_domains.id'), nullable=False)
+    user_domain = relationship("UserDomains", back_populates="keywords")
+    focus_keyword = Column(String, nullable=False, unique=True)
     avg_monthly_searches = Column(Integer)
     keyword_difficulty = Column(Integer)
     high_cpc = Column(DECIMAL(10, 2))
     low_cpc = Column(DECIMAL(10, 2))
+    keyword_stats = relationship("KeywordStats", back_populates="keyword")
+    articles = relationship("Articles", back_populates="keyword")
 
 class KeywordStats(db.Model):
     __tablename__ = 'keyword_stats'
     id = Column(Integer, primary_key=True)
-    keyword_id = Column(Integer, ForeignKey('keywords.id'))
-    keyword = relationship("Keyword", back_populates="keyword_stats")
+    keyword_id = Column(Integer, ForeignKey('keywords.id', ondelete='CASCADE'), nullable=False, unique=True)
+    keyword = relationship("Keywords", back_populates="keyword_stats", cascade='all, delete-orphan')
     total_results = Column(Integer)
     min_word_count = Column(Integer)
     max_word_count = Column(Integer)
@@ -132,25 +142,20 @@ class KeywordStats(db.Model):
     max_num_internal_links = Column(Integer)
     min_num_external_links = Column(Integer)
     max_num_external_links = Column(Integer)
+    last_updated = Column(DateTime, default=datetime.now(timezone.utc))
 
-class Article(db.Model):
+    # Define relationship with Keywords
+    keyword = relationship("Keywords", back_populates="keyword_stats")
+
+# Articles
+class Articles(db.Model):
     __tablename__ = 'articles'
     id = Column(Integer, primary_key=True)
-    keyword_id = Column(Integer, ForeignKey('keywords.id'))
-    keyword = relationship("Keyword", back_populates="articles")
+    keyword_id = Column(Integer, ForeignKey('keywords.id'), nullable=False)
+    keyword = relationship("Keywords", back_populates="articles")
     title = Column(String, nullable=False)
     html_text = Column(String, nullable=False)
     cover_image = Column(String)
     title_of_cover_image = Column(String)
     alt_of_cover_image = Column(String)
     meta_description = Column(String)
-
-# Define relationships
-User.domains = relationship("Domain", back_populates="user")
-User.processed_domains = relationship("ProcessedDomain", back_populates="user")
-User.user_envs = relationship("UserEnv", back_populates="user")
-Domain.domain_stats = relationship("DomainStats", back_populates="domain")
-DomainStats.processed_domains = relationship("ProcessedDomain", back_populates="domain_stats")
-ProcessedDomain.keywords = relationship("Keyword", back_populates="processed_domain")
-Keyword.keyword_stats = relationship("KeywordStats", back_populates="keyword")
-Keyword.articles = relationship("Article", back_populates="keyword")
