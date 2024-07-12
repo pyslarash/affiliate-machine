@@ -4,7 +4,8 @@ from apis.janai import *
 from apis.api_keys import *
 from modules.czds.czds import *
 from modules.domains.load_domains import *
-from modules.domains.unavailable_domains import *
+from modules.domains.set_domains import *
+from modules.domains.domain_check import *
 
 # Routes for the user-related functionality
 
@@ -68,13 +69,19 @@ def api(app):
     app.route('/get_czds_zonefiles_heads/<zone>', methods=['GET'])(get_czds_zonefiles_heads)
     app.route('/download_czds_zonefile/<zone>', methods=['GET'])(download_czds_zonefile)
     app.route('/display_zonefile_contents/<zone>', methods=['GET'])(display_zonefile_contents)
-    app.route('/zonefile_with_expiration/<zone>', methods=['GET'])(zonefile_with_expiration)
     
     # Domains
-    app.route('/set_domains/<zone>', methods=['POST'])(set_domains)
+    app.route('/import_domains/<zone>', methods=['POST'])(import_domains)
+    app.route('/set_domains_from_json', methods=['POST'])(set_domains_from_json)
     app.route('/remove_domain/<domain_name>', methods=['DELETE'])(remove_domain)
     app.route('/remove_zone/<zone>', methods=['DELETE'])(remove_zone)
     
-    # Unavailable zomains
+    # Setting domains
     app.route('/domain_whois_check/<domain_name>', methods=['GET'])(domain_whois_check)
-    app.route('/update_unavailable_domains', methods=['POST'])(update_unavailable_domains)
+    app.route('/set_domains', methods=['POST'])(set_domains)
+    app.route('/check_unavailable_domains', methods=['POST'])(check_unavailable_domains)
+    app.route('/check_available_domains', methods=['POST'])(check_available_domains)
+    app.route('/available_domains', methods=['GET'])(get_available_domains)
+    app.route('/unavailable_domains', methods=['GET'])(get_unavailable_domains)
+    
+    app.route('/domain_info_check/<domain_name>', methods=['GET'])(domain_info_check)

@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import gzip
 import re
-import whois
+import whoisdomain as whois
 
 load_dotenv()
 
@@ -154,52 +154,3 @@ def display_zonefile_contents(zone):
     except Exception as e:
         print(f"Error displaying zonefile contents: {str(e)}")
         return jsonify({'error': 'Error reading zonefile'}), 500
-    
-@jwt_required()
-def zonefile_with_expiration(zone):
-    response, status_code = display_zonefile_contents(zone)
-    
-    if status_code != 200:
-        return response, status_code
-    
-    extracted_domains = response.get_json().get('domains', [])
-    domain_data = []
-
-    for domain in extracted_domains:
-        try:
-            domain_info = whois.whois(domain)
-            
-            expiration_datetime = domain_info.expiration_date
-            if isinstance(expiration_datetime, list):
-                expiration_datetime = expiration_datetime[0]
-                
-            creation_datetime = domain_info.creation_date
-            if isinstance(creation_datetime, list):
-                creation_datetime = creation_datetime[0]
-                
-            updated_datetime = domain_info.updated_date
-            if isinstance(updated_datetime, list):
-                updated_datetime = updated_datetime[0]
-                
-            name_servers = domain_info.name_servers
-            if not isinstance(name_servers, list):
-                name_servers = [name_servers]
-                
-            domain_record = {
-                'domain': domain,
-                'expiration_date': expiration_datetime.strftime('%Y-%m-%d') if expiration_datetime else None,
-                'expiration_time': expiration_datetime.strftime('%H:%M:%S') if expiration_datetime else None,
-                'creation_date': creation_datetime.strftime('%Y-%m-%d') if creation_datetime else None,
-                'creation_time': creation_datetime.strftime('%H:%M:%S') if creation_datetime else None,
-                'updated_date': updated_datetime.strftime('%Y-%m-%d') if updated_datetime else None,
-                'updated_time': updated_datetime.strftime('%H:%M:%S') if updated_datetime else None,
-                'name_servers': name_servers if name_servers else None
-            }
-            
-            # Only include the domain record if expiration_date is not None
-            if domain_record['expiration_date']:
-                domain_data.append(domain_record)
-        except Exception as e:
-            pass  # Skip domains with errors
-
-    return jsonify({'domains': domain_data}), 200
