@@ -6,6 +6,7 @@ from modules.czds.czds import *
 from modules.domains.load_domains import *
 from modules.domains.set_domains import *
 from modules.domains.domain_check import *
+from modules.domains.domdetailer import *
 
 # Routes for the user-related functionality
 
@@ -44,10 +45,10 @@ def api(app):
     app.route('/delete_google_api_keys', methods=['DELETE'])(delete_google_api_keys)    
 
     # MyAddr API key routes
-    app.route('/get_myaddr_api_key', methods=['GET'])(get_myaddr_api_key)
-    app.route('/save_myaddr_api_key', methods=['POST'])(save_myaddr_api_key)
-    app.route('/update_myaddr_api_key', methods=['PUT'])(update_myaddr_api_key)
-    app.route('/delete_myaddr_api_key', methods=['DELETE'])(delete_myaddr_api_key)
+    app.route('/get_domdetailer_api_key', methods=['GET'])(get_domdetailer_api_key)
+    app.route('/save_domdetailer_api_key', methods=['POST'])(save_domdetailer_api_key)
+    app.route('/update_domdetailer_api_key', methods=['PUT'])(update_domdetailer_api_key)
+    app.route('/delete_domdetailer_api_key', methods=['DELETE'])(delete_domdetailer_api_key)
     
     # Porkbun API keys routes
     app.route('/get_porkbun_api_keys', methods=['GET'])(get_porkbun_api_keys)
@@ -81,7 +82,11 @@ def api(app):
     app.route('/set_domains', methods=['POST'])(set_domains)
     app.route('/check_unavailable_domains', methods=['POST'])(check_unavailable_domains)
     app.route('/check_available_domains', methods=['POST'])(check_available_domains)
-    app.route('/available_domains', methods=['GET'])(get_available_domains)
-    app.route('/unavailable_domains', methods=['GET'])(get_unavailable_domains)
+    app.route('/get_available_domains', methods=['GET'])(get_available_domains)
+    app.route('/get_unavailable_domains', methods=['GET'])(get_unavailable_domains)
     
-    app.route('/domain_info_check/<domain_name>', methods=['GET'])(domain_info_check)
+    # app.route('/domain_info_check/<domain_name>', methods=['GET'])(domain_info_check)
+    
+    # DomDetailer
+    app.route('/check_domdetailer_balance', methods=['GET'])(check_domdetailer_balance)
+    app.route('/check_domdetailer_domain/<domain_name>', methods=['GET'])(check_domdetailer_domain)

@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 88bd52775476
+Revision ID: 7f282bddb6ac
 Revises: 
-Create Date: 2024-07-03 21:30:37.767927
+Create Date: 2024-07-19 17:06:27.775303
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '88bd52775476'
+revision = '7f282bddb6ac'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,6 +21,7 @@ def upgrade():
     op.create_table('domains',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('domain', sa.String(), nullable=False),
+    sa.Column('zone', sa.String(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('domain')
     )
@@ -51,8 +52,10 @@ def upgrade():
     sa.Column('fb_comments', sa.Integer(), nullable=True),
     sa.Column('fb_shares', sa.Integer(), nullable=True),
     sa.Column('fb_reactions', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['domain_id'], ['domains.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.Column('last_updated', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['domain_id'], ['domains.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('domain_id')
     )
     op.create_table('token_blacklist',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -62,29 +65,31 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('expires_at', sa.DateTime(), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('jti')
     )
     op.create_table('unavailable_domains',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('domain_id', sa.Integer(), nullable=True),
-    sa.Column('creation_date', sa.DateTime(), nullable=False),
-    sa.Column('creation_time', sa.DateTime(), nullable=False),
-    sa.Column('expiration_date', sa.DateTime(), nullable=False),
-    sa.Column('expiration_time', sa.DateTime(), nullable=False),
+    sa.Column('creation_date', sa.String(), nullable=False),
+    sa.Column('creation_time', sa.String(), nullable=False),
+    sa.Column('expiration_date', sa.String(), nullable=False),
+    sa.Column('expiration_time', sa.String(), nullable=False),
     sa.Column('name_servers', sa.String(), nullable=True),
-    sa.Column('updated_date', sa.DateTime(), nullable=False),
-    sa.Column('updated_time', sa.DateTime(), nullable=False),
-    sa.ForeignKeyConstraint(['domain_id'], ['domains.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.Column('updated_date', sa.String(), nullable=False),
+    sa.Column('updated_time', sa.String(), nullable=False),
+    sa.Column('last_updated', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['domain_id'], ['domains.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('domain_id')
     )
     op.create_table('user_domains',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('domain_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['domain_id'], ['domains.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['domain_id'], ['domains.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('domain_id')
     )
@@ -101,7 +106,7 @@ def upgrade():
     sa.Column('porkbun_secret', sa.String(), nullable=True),
     sa.Column('czds_login', sa.String(), nullable=True),
     sa.Column('czds_password', sa.String(), nullable=True),
-    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('user_id')
     )
     op.create_table('keywords',
@@ -158,7 +163,8 @@ def upgrade():
     sa.Column('max_num_internal_links', sa.Integer(), nullable=True),
     sa.Column('min_num_external_links', sa.Integer(), nullable=True),
     sa.Column('max_num_external_links', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['keyword_id'], ['keywords.id'], ),
+    sa.Column('last_updated', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['keyword_id'], ['keywords.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('keyword_id')
     )

@@ -248,22 +248,22 @@ def get_open_ai_api_key():
     response = get_single_api_key("open_ai_api_key")
     return response
 
-# MyAddr
+# DomDetailer
 @jwt_required()
-def save_myaddr_api_key():
-    response = save_single_api_key("myaddr_api_key")
+def save_domdetailer_api_key():
+    response = save_single_api_key("domdetailer_api_key")
     return response
 @jwt_required()
-def update_myaddr_api_key():
-    response = update_single_api_key("myaddr_api_key")
+def update_domdetailer_api_key():
+    response = update_single_api_key("domdetailer_api_key")
     return response
 @jwt_required()
-def delete_myaddr_api_key():
-    response = delete_single_api_key("myaddr_api_key")
+def delete_domdetailer_api_key():
+    response = delete_single_api_key("domdetailer_api_key")
     return response
 @jwt_required()
-def get_myaddr_api_key():
-    response = get_single_api_key("myaddr_api_key")
+def get_domdetailer_api_key():
+    response = get_single_api_key("domdetailer_api_key")
     return response
 
 # Dual API Keys

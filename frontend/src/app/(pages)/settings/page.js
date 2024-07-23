@@ -104,12 +104,12 @@ export default function Settings() {
           />
           <ApiKeysFormOneLine
             userData={userData}
-            getCall={'get_myaddr_api_key'}
-            postCall={'save_myaddr_api_key'}
-            putCall={'update_myaddr_api_key'}
-            deleteCall={'delete_myaddr_api_key'}
-            apiName={'MyAddr'}
-            colName={'myaddr_api_key'}
+            getCall={'get_domdetailer_api_key'}
+            postCall={'save_domdetailer_api_key'}
+            putCall={'update_domdetailer_api_key'}
+            deleteCall={'delete_domdetailer_api_key'}
+            apiName={'DomDetailer'}
+            colName={'domdetailer_api_key'}
             apiMsg={setApiMessage}
             apiEMsg={setApiErrorMessage}
           />

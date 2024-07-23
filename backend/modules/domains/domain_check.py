@@ -1,6 +1,5 @@
 import whoisdomain as whois
 from flask import jsonify
-import seolib
 
 def domain_whois_check(domain_name):
     try:
@@ -44,8 +43,3 @@ def domain_whois_check(domain_name):
             return jsonify({'error': 'Expiration date not found for the domain.'}), 404
     except Exception as e:
         return jsonify({'error': f'Error fetching WHOIS data for domain {domain_name}: {str(e)}'}), 500
-    
-def domain_info_check(domain_name):
-    semrush = seolib.get_semrush(domain_name)
-        
-    return jsonify({'semrush': semrush}), 200
