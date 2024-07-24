@@ -53,6 +53,7 @@ class Domains(db.Model):
     users = relationship("UserDomains", back_populates="domain", cascade='all, delete-orphan')
     available_domains = relationship("AvailableDomains", back_populates="domain", cascade='all, delete-orphan')
     unavailable_domains = relationship("UnavailableDomains", back_populates="domain", cascade='all, delete-orphan')
+    is_available = Column(Boolean)
 
 class UserDomains(db.Model):
     __tablename__ = 'user_domains'

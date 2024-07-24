@@ -3,7 +3,13 @@ from flask import jsonify, current_app
 from database.models import db, UnavailableDomains, Domains, AvailableDomains
 from modules.domains.domain_check import *
 from sqlalchemy.orm import sessionmaker
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt
+from dotenv import load_dotenv
+from modules.domains.domain_check import *
+
+load_dotenv()
+
+BACKEND_URL = os.getenv('BACKEND_URL')
 
 # Define the session
 Session = sessionmaker()
@@ -54,14 +60,46 @@ def set_domains():
                             last_updated=datetime.now(timezone.utc)
                         )
                         session.add(unavailable_domain)
+                        domain.is_available = False
                         unavailable_domains_count += 1
                     elif response_data.get('status') == 'available':
-                        available_domain = AvailableDomains(
-                            domain_id=domain.id,
-                            last_updated=datetime.now(timezone.utc)
-                        )
-                        session.add(available_domain)
-                        available_domains_count += 1
+                        try:
+                            # Make the request with the Bearer token
+                            domdetailer_data = check_domdetailer_domain(domain_name)
+                            available_domain = AvailableDomains(
+                                domain_id=domain.id,
+                                moz_da=int(domdetailer_data.get('mozDA', 0)) if domdetailer_data.get('mozDA') else None,
+                                moz_pa=int(domdetailer_data.get('mozPA', 0)) if domdetailer_data.get('mozPA') else None,
+                                moz_links=int(domdetailer_data.get('mozLinks', 0)) if domdetailer_data.get('mozLinks') else None,
+                                moz_rank=float(domdetailer_data.get('mozRank', 0.0)) if domdetailer_data.get('mozRank') else None,
+                                moz_trust=float(domdetailer_data.get('mozTrust', 0.0)) if domdetailer_data.get('mozTrust') else None,
+                                moz_spam=float(domdetailer_data.get('mozSpam', 0.0)) if domdetailer_data.get('mozSpam') else None,
+                                fb_comments=int(domdetailer_data.get('FB_comments', 0)) if domdetailer_data.get('FB_comments') else None,
+                                fb_shares=int(domdetailer_data.get('FB_shares', 0)) if domdetailer_data.get('FB_shares') else None,
+                                stumbles=int(domdetailer_data.get('stumbles', 0)) if domdetailer_data.get('stumbles') else None,
+                                pinterest_pins=int(domdetailer_data.get('pinterest_pins', 0)) if domdetailer_data.get('pinterest_pins') else None,
+                                majestic_stat=domdetailer_data.get('majesticStatReturned'),
+                                majestic_links=int(domdetailer_data.get('majesticLinks', 0)) if domdetailer_data.get('majesticLinks') else None,
+                                majestic_ref_domains=int(domdetailer_data.get('majesticRefDomains', 0)) if domdetailer_data.get('majesticRefDomains') else None,
+                                majestic_ref_edu=int(domdetailer_data.get('majesticRefEDU', 0)) if domdetailer_data.get('majesticRefEDU') else None,
+                                majestic_ref_gov=int(domdetailer_data.get('majesticRefGov', 0)) if domdetailer_data.get('majesticRefGov') else None,
+                                majestic_ref_subnets=int(domdetailer_data.get('majesticRefSubnets', 0)) if domdetailer_data.get('majesticRefSubnets') else None,
+                                majestic_ips=int(domdetailer_data.get('majesticIPs', 0)) if domdetailer_data.get('majesticIPs') else None,
+                                majestic_cf=int(domdetailer_data.get('majesticCF', 0)) if domdetailer_data.get('majesticCF') else None,
+                                majestic_tf=int(domdetailer_data.get('majesticTF', 0)) if domdetailer_data.get('majesticTF') else None,
+                                majestic_ttf0_name=domdetailer_data.get('majesticTTF0Name'),
+                                majestic_ttf0_value=int(domdetailer_data.get('majesticTTF0Value', 0)) if domdetailer_data.get('majesticTTF0Value') else None,
+                                majestic_ttf1_name=domdetailer_data.get('majesticTTF1Name'),
+                                majestic_ttf1_value=int(domdetailer_data.get('majesticTTF1Value', 0)) if domdetailer_data.get('majesticTTF1Value') else None,
+                                majestic_ttf2_name=domdetailer_data.get('majesticTTF2Name'),
+                                majestic_ttf2_value=int(domdetailer_data.get('majesticTTF2Value', 0)) if domdetailer_data.get('majesticTTF2Value') else None,
+                                last_updated=datetime.now(timezone.utc)
+                            )
+                            session.add(available_domain)
+                            domain.is_available = True
+                            available_domains_count += 1
+                        except Exception as e:
+                            print(f"Error fetching additional data for domain {domain_name}: {str(e)}")
                     else:
                         continue
                 except Exception as e:
@@ -143,18 +181,47 @@ def check_unavailable_domains():
                                         last_updated=datetime.now(timezone.utc)
                                     )
                                     session.add(unavailable_domain)
-                                
+                                    domain.is_available = False
+                                    
                                 session.commit()
                             elif response_data.get('status') == 'available':
                                 # Add to AvailableDomains if the domain is now available
-                                available_domain = AvailableDomains(
-                                    domain_id=domain.id,
-                                    last_updated=datetime.now(timezone.utc)
-                                )
-                                session.add(available_domain)
-                                new_available_domains += 1
-                                session.delete(existing_unavailable_entry)
-                                session.commit()
+                                try:                                    
+                                    domdetailer_data = check_domdetailer_domain(domain_name)
+                                    available_domain = AvailableDomains(
+                                        domain_id=domain.id,
+                                        moz_da=int(domdetailer_data.get('mozDA', 0)) if domdetailer_data.get('mozDA') else None,
+                                        moz_pa=int(domdetailer_data.get('mozPA', 0)) if domdetailer_data.get('mozPA') else None,
+                                        moz_links=int(domdetailer_data.get('mozLinks', 0)) if domdetailer_data.get('mozLinks') else None,
+                                        moz_rank=float(domdetailer_data.get('mozRank', 0.0)) if domdetailer_data.get('mozRank') else None,
+                                        moz_trust=float(domdetailer_data.get('mozTrust', 0.0)) if domdetailer_data.get('mozTrust') else None,
+                                        moz_spam=float(domdetailer_data.get('mozSpam', 0.0)) if domdetailer_data.get('mozSpam') else None,
+                                        fb_comments=int(domdetailer_data.get('FB_comments', 0)) if domdetailer_data.get('FB_comments') else None,
+                                        fb_shares=int(domdetailer_data.get('FB_shares', 0)) if domdetailer_data.get('FB_shares') else None,
+                                        stumbles=int(domdetailer_data.get('stumbles', 0)) if domdetailer_data.get('stumbles') else None,
+                                        pinterest_pins=int(domdetailer_data.get('pinterest_pins', 0)) if domdetailer_data.get('pinterest_pins') else None,
+                                        majestic_stat=domdetailer_data.get('majesticStatReturned'),
+                                        majestic_links=int(domdetailer_data.get('majesticLinks', 0)) if domdetailer_data.get('majesticLinks') else None,
+                                        majestic_ref_domains=int(domdetailer_data.get('majesticRefDomains', 0)) if domdetailer_data.get('majesticRefDomains') else None,
+                                        majestic_ref_edu=int(domdetailer_data.get('majesticRefEDU', 0)) if domdetailer_data.get('majesticRefEDU') else None,
+                                        majestic_ref_gov=int(domdetailer_data.get('majesticRefGov', 0)) if domdetailer_data.get('majesticRefGov') else None,
+                                        majestic_ref_subnets=int(domdetailer_data.get('majesticRefSubnets', 0)) if domdetailer_data.get('majesticRefSubnets') else None,
+                                        majestic_ips=int(domdetailer_data.get('majesticIPs', 0)) if domdetailer_data.get('majesticIPs') else None,
+                                        majestic_cf=int(domdetailer_data.get('majesticCF', 0)) if domdetailer_data.get('majesticCF') else None,
+                                        majestic_tf=int(domdetailer_data.get('majesticTF', 0)) if domdetailer_data.get('majesticTF') else None,
+                                        majestic_ttf0_name=domdetailer_data.get('majesticTTF0Name'),
+                                        majestic_ttf0_value=int(domdetailer_data.get('majesticTTF0Value', 0)) if domdetailer_data.get('majesticTTF0Value') else None,
+                                        majestic_ttf1_name=domdetailer_data.get('majesticTTF1Name'),
+                                        majestic_ttf1_value=int(domdetailer_data.get('majesticTTF1Value', 0)) if domdetailer_data.get('majesticTTF1Value') else None,
+                                        majestic_ttf2_name=domdetailer_data.get('majesticTTF2Name'),
+                                        majestic_ttf2_value=int(domdetailer_data.get('majesticTTF2Value', 0)) if domdetailer_data.get('majesticTTF2Value') else None,
+                                        last_updated=datetime.now(timezone.utc)
+                                    )
+                                    session.add(available_domain)
+                                    domain.is_available = True
+                                    available_domains_count += 1
+                                except Exception as e:
+                                    print(f"Error fetching additional data for domain {domain_name}: {str(e)}")
                             else:
                                 continue
                         except Exception as e:
@@ -171,7 +238,7 @@ def check_unavailable_domains():
         'message': 'Unavailable domain check processed successfully.',
         'available_domains_discovered': new_available_domains,
     }), 200
-    
+
 def check_available_domains():
     with current_app.app_context():
         Session = sessionmaker(bind=db.engine)
@@ -183,7 +250,8 @@ def check_available_domains():
         try:
             for available_domain in available_domains:
                 domain_id = available_domain.domain_id
-                domain_name = session.query(Domains).filter(Domains.id == domain_id).first().domain
+                domain = session.query(Domains).filter(Domains.id == domain_id).first()
+                domain_name = domain.domain
                 
                 try:
                     response, status_code = domain_whois_check(domain_name)
@@ -217,9 +285,8 @@ def check_available_domains():
                                 last_updated=datetime.now(timezone.utc)
                             )
                             session.add(unavailable_domain)
-                            
-                        # Remove from AvailableDomains
-                        session.delete(available_domain)
+                        
+                        domain.is_available = False                            
                         new_unavailable_domains += 1
                         
                     session.commit()

@@ -6,7 +6,6 @@ from modules.czds.czds import *
 from modules.domains.load_domains import *
 from modules.domains.set_domains import *
 from modules.domains.domain_check import *
-from modules.domains.domdetailer import *
 
 # Routes for the user-related functionality
 
@@ -77,16 +76,14 @@ def api(app):
     app.route('/remove_domain/<domain_name>', methods=['DELETE'])(remove_domain)
     app.route('/remove_zone/<zone>', methods=['DELETE'])(remove_zone)
     
-    # Setting domains
-    app.route('/domain_whois_check/<domain_name>', methods=['GET'])(domain_whois_check)
+    # Setting domains    
     app.route('/set_domains', methods=['POST'])(set_domains)
     app.route('/check_unavailable_domains', methods=['POST'])(check_unavailable_domains)
     app.route('/check_available_domains', methods=['POST'])(check_available_domains)
     app.route('/get_available_domains', methods=['GET'])(get_available_domains)
     app.route('/get_unavailable_domains', methods=['GET'])(get_unavailable_domains)
     
-    # app.route('/domain_info_check/<domain_name>', methods=['GET'])(domain_info_check)
-    
-    # DomDetailer
+    # Domain Checks
+    app.route('/domain_whois_check/<domain_name>', methods=['GET'])(domain_whois_check)
     app.route('/check_domdetailer_balance', methods=['GET'])(check_domdetailer_balance)
     app.route('/check_domdetailer_domain/<domain_name>', methods=['GET'])(check_domdetailer_domain)
