@@ -1,6 +1,6 @@
 from flask import Flask
 from apis.users import *
-from apis.janai import *
+from apis.ollama import *
 from apis.api_keys import *
 from modules.czds.czds import *
 from modules.domains.load_domains import *
@@ -22,12 +22,16 @@ def api(app):
     
     #######################################################################
 
-    # ROUTES FOR JAN.AI
-    app.route('/set_credentials', methods=['POST'])(set_credentials)
-    app.route('/update_credentials', methods=['PUT'])(update_credentials)
-    app.route('/delete_credentials', methods=['DELETE'])(delete_credentials)
-    app.route('/get_credentials', methods=['GET'])(get_credentials)
-    
+    # ROUTES FOR OLLAMA
+    app.route('/set_ollama_credentials', methods=['POST'])(set_ollama_credentials)
+    app.route('/update_ollama_credentials', methods=['PUT'])(update_ollama_credentials)
+    app.route('/delete_ollama_credentials', methods=['DELETE'])(delete_ollama_credentials)
+    app.route('/get_ollama_credentials', methods=['GET'])(get_ollama_credentials)
+    app.route('/set_ollama_web', methods=['POST'])(set_ollama_web)
+    app.route('/update_ollama_web', methods=['PUT'])(update_ollama_web)
+    app.route('/delete_ollama_web', methods=['DELETE'])(delete_ollama_web)
+    app.route('/get_ollama_web', methods=['GET'])(get_ollama_web)
+
     #######################################################################
 
     # ROUTES FOR API KEYS

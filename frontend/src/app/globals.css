@@ -55,3 +55,7 @@ div {
 .button-text {
   color: white;
 }
+
+.button-width {
+  flex-grow: 1;
+}

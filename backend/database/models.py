@@ -21,9 +21,9 @@ class UserEnv(db.Model):
     __tablename__ = 'user_envs'
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
     user = relationship("User", back_populates="envs")
-    jan_ip = Column(String)
-    jan_port = Column(Integer)
-    jan_prefix = Column(String)
+    ollama_ip = Column(String)
+    ollama_port = Column(Integer)
+    ollama_web_address = Column(String)
     open_ai_api_key = Column(String)
     google_search_api_key = Column(String)
     google_cx = Column(String)
